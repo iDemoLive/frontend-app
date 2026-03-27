@@ -1,0 +1,19 @@
+name: Buil and Deploy Docker
+
+on:
+  push:
+    tags:
+      - '*.*.*' # 3.0.0
+
+jobs:
+  buil-image-and-push-job:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Buil docker image and push to GitHub Regigtry
+        uses: mr-smithers-excellent/docker-build-push@v6
+        with:
+          image: ${{ github.event.repository.name }}
+          registry: ghcr.io
+          username: ${{ github.action }}
+          password: ${{ secrets.GITHUB_TOKEN }}
