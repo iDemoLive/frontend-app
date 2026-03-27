@@ -15,7 +15,7 @@ jobs:
         with:
           image: ${{ github.event.repository.name }}
           registry: ghcr.io
-          username: ${{ github.action }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
   auto-deploy-docker-job:
@@ -25,7 +25,8 @@ jobs:
     env:
       CONTANNER_NAME: ${{ github.actor }}
       SERVER_PORT: 8339 # http://45.32.108.242:8339
-      DOCKER_IMAGE_URL: 'ghcr.io/${{ github.actor }}/${{ github.event.repository.name}}:${{ github.ref_name}}'
+      DOCKER_IMAGE_URL: 'ghcr.io/idemolive/${{ github.event.repository.name}}:${{ github.ref_name}}'
+      GITHUB_USER: 'idemolive'  # github.actor = iDemoLive
     steps:
       - name: Executing remote ssh using password to production server
         uses: appleboy/ssh-action@v1.2.5
@@ -39,8 +40,7 @@ jobs:
             pwd
             ls
             docker logout ghcr.io
-            docker login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io/${{ github.actor }}/${{ github.event.repository.name}}
+            docker login -u ${{ env.GITHUB_USER }} -p ${{ secrets.GITHUB_TOKEN }} ghcr.io/${{ env.GITHUB_USER }}/${{ github.event.repository.name}}
             docker pull ${{ env.DOCKER_IMAGE_URL }}
             docker rm -f ${{ env.CONTANNER_NAME }} | true
             docker run --restart=always -d --name ${{ env.CONTANNER_NAME }} -p ${{ env.SERVER_PORT }}:80 ${{ env.DOCKER_IMAGE_URL }}
-            
